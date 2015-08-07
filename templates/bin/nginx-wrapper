@@ -5,9 +5,9 @@ if [ -n "${MAINTENANCE_PAGE_URL}" ]; then
   curl -s "${MAINTENANCE_PAGE_URL}" > /usr/html/50x.html
 fi
 
-# Process ERB variables in server.conf
-cd /etc/nginx/sites-enabled
-erb server.conf.erb > server.conf
+# Process ERB variables in nginx.conf and server.conf
+cd /etc/nginx && erb nginx.conf.erb > nginx.conf
+cd /etc/nginx/sites-enabled && erb server.conf.erb > server.conf
 
 if [ ! -f /etc/nginx/ssl/server.crt ]; then
   mkdir -p /etc/nginx/ssl

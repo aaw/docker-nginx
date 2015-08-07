@@ -21,6 +21,24 @@ To force SSL, set the `FORCE_SSL` environment variable to `true`:
 
     docker run -e FORCE_SSL=true quay.io/aptible/nginx
 
+### Configuring supported protocols and cipher suites
+
+The default set of protocols and cipher suites exposed in our NGiNX configuration aims to balance security and compatibility
+with older clients. This default configuration mitigates the POODLE vulnerabilities by only allowing SSLv3 with the RC4
+cipher. At the same time, it's accomodating enough to support even a default installation of IE6 on Windows XP or
+use as a custom origin behind AWS CloudFront over SSLv3/TLS1.
+
+There is, however, mounting evidence that RC4 is broken, which would mean that SSLv3 could not be used safely at all. To
+use a configuration that trades some compatibility for security set the `DISABLE_WEAK_CIPHER_SUITES` environment variable
+to `true`:
+
+    docker run -e DISABLE_WEAK_CIPHER_SUITES=true quay.io/aptible/nginx
+
+This flag turns off SSLv3 as well as the RC4 cipher. The configuration it generates earns an A+ on the Qualys SSL Labs
+[SSL Server Test](https://www.ssllabs.com/ssltest/) while providing compatibility with almost all clients that Qualys
+tests. The lone exception is IE 6 on Windows XP, which only fails because Qualys tests the default installation: if TLS
+1.0 is enabled in IE 6, our configuration can be used to connect.
+
 ### Simulating trusted SSL connections
 
 If you're on OS X running boot2docker, you can configure your system to trust NGiNX's self-signed certificate by taking the following steps:

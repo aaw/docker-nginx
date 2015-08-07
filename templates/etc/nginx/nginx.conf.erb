@@ -35,12 +35,19 @@ http {
   gzip on;
   gzip_disable "msie6";
 
+<% if ENV['DISABLE_WEAK_CIPHER_SUITES'] %>
+  # Only TLS 1.0 and up, enable PFS for most clients but provide DES-CBC3-SHA
+  # for clients like IE 8 on Win XP or Java 6 that don't support PFS. IE 6 on
+  # Win XP can use DES-CBC3-SHA if TLS 1.0 is manually enabled on the client.
+  ssl_ciphers EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:EECDH+aRSA+SHA384:EECDH+aRSA+SHA256:EECDH:DES-CBC3-SHA:EDH+aRSA!aNULL:!eNULL:!LOW:!EXP:!PSK:!SRP:!DSS:!CAMELLIA:!RC4:!MD5;
+  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+<% else %>
   # http://serverfault.com/a/637849
   # Enable PFS for most browsers, and provide SSLv3 while mitigating POODLE
   # Note: we're also disabling SSLv3+AES
   ssl_ciphers EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:EECDH+aRSA+SHA384:EECDH+aRSA+SHA256:EECDH+aRSA+RC4:EECDH:EDH+aRSA:RC4:!aNULL:!eNULL:!LOW:!3DES:!EXP:!PSK:!SRP:!DSS:!CAMELLIA:!SSLv3+AES;
-
   ssl_protocols SSLv3 TLSv1 TLSv1.1 TLSv1.2;
+<% end %>
   ssl_prefer_server_ciphers on;
   ssl_dhparam /etc/nginx/dhparams.pem;
 

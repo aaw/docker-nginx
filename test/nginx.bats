@@ -199,3 +199,15 @@ teardown() {
   [[ "$output" =~ "NoUnderscores: true" ]]
   [[ "$output" =~ "SOME_UNDERSCORES: true" ]]
 }
+
+@test "It does not allow SSLv3 if DISABLE_WEAK_CIPHER_SUITES is set" {
+  DISABLE_WEAK_CIPHER_SUITES=true wait_for_nginx
+  run local_s_client -ssl3
+  [ "$status" -eq 1 ]
+}
+
+@test "It does not allow RC4 if DISABLE_WEAK_CIPHER_SUITES is set" {
+  DISABLE_WEAK_CIPHER_SUITES=true wait_for_nginx
+  run local_s_client -cipher "RC4"
+  [ "$status" -eq 1 ]
+}
